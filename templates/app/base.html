@@ -1,0 +1,46 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="icon"href="{% static '/favicon/favicon.ico' %}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Finlandica:wght@400;700&display=swap" rel="stylesheet">    <title>{% block title %}{% endblock %}</title>
+</head>
+<body>
+    <div class="background">
+        <header class="header">
+            <a href="/" class="header__logo">Система вибору керівників та тем для БАР</a>
+            <div class="header-right">
+            {% if user.is_authenticated == False%}
+                <a class="active" href="{%url 'login'%}">Увійти</a>
+                <a href="#open-modal">Реєстрація</a>
+            {% else %}
+                <a class="active" href="{%url 'logout'%}">Вийти</a>
+            {% endif %}
+            </div>
+            <div id="open-modal" class="modal-window">
+                <div class="modal">
+                    <a href="#" title="Close" class="modal-close">Close</a>
+                    <div class="modal__role-container">
+                        <div class="modal__role">
+                            <img src="{{MEDIA_URL}}student.png" alt="" class="modal__role__img">
+                            <a href="{% url 'student-register' %}" class="modal__role__link">Я студент</a>
+                        </div>
+                    <div class="modal__role-container">
+                        <div class="modal__role">
+                            <img src="{{MEDIA_URL}}teacher.png" alt="" class="modal__role__img" width="225" height="225">
+                            <a href="{% url 'teacher-register' %}" class="modal__role__link">Я викладач</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+        {% block content %}{% endblock %}
+    </div>
+</body>
+</html>

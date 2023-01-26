@@ -1,0 +1,39 @@
+{% extends "app/base.html" %}
+{% block title %}{{teacher.last_name}} {{teacher.first_name}} {{teacher.patronymic}}{% endblock title%}
+{% block content %}
+<h1>Викладач {{teacher.last_name}} {{teacher.first_name}} {{teacher.patronymic}}</h1>
+<h3>Кафедра: {{teacher.departament}}</h3>
+<p class="teacher-info__quantity"><b>Кількість студентів:</b>
+{%for value in countstudents%}
+    {%if teacher.user_id == value.0 %}
+        {{value.1}}
+    {%endif%}
+{%endfor%}/{{teacher.quantity}}</p>
+<h3>Записані студенти:</h3>
+{%for item in students%}
+    {%if item.teacher == teacher%} 
+        {%if item.theme_status == 'Очікується підтвердження' or item.theme_status == 'Тему відхилено' %}
+            <div class="teacher-profile__students">
+            <p>{{item.last_name}} {{item.first_name}} {{item.patronymic}} - {{item.theme}} - {{item.theme_status}}</p>
+            {% if user.id == teacher.user_id %}
+                {% if item.theme_status == 'Очікується підтвердження' %}
+                        <a href="{% url 'th-acc' item.user_id %}" class="">&#9989;</a>
+                        <a href="{% url 'th-dec' item.user_id %}" class="">&#10060;</a>
+                    {% elif item.theme_status == 'Тему відхилено' %}
+                        <a href="{% url 'th-acc' item.user_id %}" class="">&#9989;</a>
+                {% endif %}
+            {% endif %}
+            </div>
+        {% endif %}
+        <h3>Підтверджені студенти:</h3>
+        {% if item.theme_status == 'Тему затверджено' %}
+        <div class="teacher-profile__students">
+            <p>{{item.last_name}} {{item.first_name}} {{item.patronymic}} - {{item.theme}} - {{item.theme_status}}</p>
+                {% if user.id == teacher.user_id %}
+                    <a href="{% url 'th-dec' item.user_id %}" class="">&#10060;</a>
+                {% endif %}
+            </div>
+        {% endif %}
+    {% endif %}
+{% endfor %}
+{% endblock content %}

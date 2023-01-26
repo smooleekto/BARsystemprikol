@@ -1,0 +1,10 @@
+{% extends "app/base.html" %}
+{% block title %}Вихід з системи{% endblock title %}
+{% block content %}
+    <div class="form__reg-form" id="logout">
+        <h5 class="form__heading">Ви успішно вийшли з системи</h5>
+        <a href="{% url 'login' %}" class="form__button">Увійти знову</a>
+    </div>
+
+
+{% endblock content %}

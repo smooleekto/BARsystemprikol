@@ -1,0 +1,292 @@
+{% extends "app/base.html" %}
+{% load static %}
+{% block title %} Система вибору керівників та тем для БАР  {% endblock title%}
+{% block content %}
+<script type="text/javascript" src={% static 'scripts/script.js' %}></script>
+<div class="home__container">
+    {{students.theme.all}}
+    {% for item in teachers %}
+        {%if item.user_id == user.id%}
+        <div class="teacher-info__container">
+            <p class="teacher-info__name"><b>Викладач</b> {{item.last_name}} {{item.first_name}} {{item.patronymic}}</p>
+            {%if item.quantity == 0 %}
+                <p class="teacher-info__quantity"><b>Кількість студентів:</b> <span>Ви не вказали кількість студентів!</span></p>
+            {%else %}
+                <p class="teacher-info__quantity"><b>Кількість студентів:</b>
+                    {%for value in countstudents%}
+                    {%if item.user_id == value.0 %}
+                        {{value.1}}
+                    {%endif%}
+                {%endfor%}/{{item.quantity}}</p>
+            {%endif%}
+            <p class="teacher-info__theme-heading">Теми:</p>
+            {%for item in themes%}
+                {% if item.teacher_id == user.id%}
+                    <div class="teacher-themes__wrapper">
+                        <p class="teacher-info__theme">{{item.theme}}</p>
+                        {% if item.theme != 'Тема на вибір студента' %}
+                            <a href="{% url 'theme-delete' item.theme %}" class="">Видалити</a>
+                        {% endif %}
+                    </div>
+                {%endif%}
+            {% endfor %}
+        </div>
+        <div class="form__container">
+            <div class="form__teachers-form">
+                <h1 class="form__heading">Оновити дані</h1>
+                <form method="POST">
+                {% csrf_token %}
+                {% if form.errors %}
+                    <div class="alert alert-danger alert-dismissible" role="alert">
+                        <div id="form_errors">
+                            {% for key, value in form.errors.items %}
+                                <strong>{{ value }}</strong>
+                            {% endfor %}
+                        </div>
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                {% endif %}
+                <div class="form__input">
+                    <div class="form__blockinput">
+                        {{ teachers_update.last_name }}
+                    </div>
+                    <div class="form__blockinput">
+                        {{ teachers_update.first_name }}
+                    </div>
+                    <div class="form__blockinput">
+                        {{ teachers_update.patronymic }}
+                    </div>
+                    <div class="form__blockinput">
+                        {{ teachers_update.quantity }}
+                    </div>
+                    <div class="form__blockinput">
+                        {{ teachers_update.student_theme }}
+                        <label>Дозволити студентам обирати свою тему</label>
+                    </div>
+                </div>
+                <button type="submit" class="form__button" name="btn-teachers-update">Оновити</button>
+                </form>                
+            </div>
+        </div>
+        <div class="form__container">
+            <div class="form__teachers-form">
+                <h1 class="form__heading">Додати тему</h1>
+                <form method="POST">
+                {% csrf_token %}
+                {% if form.errors %}
+                    <div class="alert alert-danger alert-dismissible" role="alert">
+                        <div id="form_errors">
+                            {% for key, value in form.errors.items %}
+                                <strong>{{ value }}</strong>
+                            {% endfor %}
+                        </div>
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                {% endif %}
+                <div class="form__input">
+                    <div class="form__blockinput">
+                        {{ add_theme.theme }}
+                    </div>
+                </div>
+                <button type="submit" class="form__button" name="btn-add-theme">Додати</button>
+                </form>                
+            </div>
+        </div>
+        {%endif%}
+    {%endfor%}
+    {% for item in students %}
+        {%if item.user_id == user.id%}
+            <div class="teacher-info__container">
+                <p class="teacher-info__name"><b>Студент</b> {{item.last_name}} {{item.first_name}} {{item.patronymic}}</p>
+                <p class="teacher-info__quantity"><b>Група:</b> {{item.group}}</p>
+                {%if item.theme == ''%}
+                    <p class="teacher-info__quantity"><b>Тема:</b><span> Ви не обрали тему!</span></p>
+                {%else%}
+                    <p class="teacher-info__quantity"><b>Тема:</b> {{item.theme}}</p>
+                    <p class="teacher-info__quantity"><b>Науковий керівник:</b> {{item.teacher_lastname}} {{item.teacher_firstname}} {{item.teacher_ptr}}</p>
+                    <p class="teacher-info__quantity"><b>Статус теми:</b> {{item.theme_status}} </p>
+                {%endif%}
+                </div>
+                {%if item.teacher_id == 199999%}
+                  <div class="form__teachers-form">
+                    <h1 class="form__heading">Обрати тему</h1>
+                    <form method="post" id="themeForm" data-themes-url="{% url 'load_ajax' %}" novalidate>
+                    {% csrf_token %}
+                    {% if form.errors %}
+                        <div class="alert alert-danger alert-dismissible" role="alert">
+                            <div id="form_errors">
+                                {% for key, value in form.errors.items %}
+                                    <strong>{{ value }}</strong>
+                                {% endfor %}
+                            </div>
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                    {% endif %}
+                    <div class="form__input">
+                        <div class="form__blockinput">
+                            Викладач: {{ theme_choose.teacher }}
+                        </div>
+                    </div>
+                    <div class="form__input">
+                        <div class="form__blockinput">
+                            Тема: {{ theme_choose.theme }}
+                        </div>
+                    </div>
+                    <button type="submit" class="form__button" name="btn-choose-theme">Обрати</button>
+                    </form>                
+                </div>  
+                {% elif item.theme == 'Тема на вибір студента' %}
+                <div class="form__teachers-form">
+                    <h1 class="form__heading">Напишіть свою тему</h1>
+                    <form method="post">
+                    {% csrf_token %}
+                    {% if form.errors %}
+                        <div class="alert alert-danger alert-dismissible" role="alert">
+                            <div id="form_errors">
+                                {% for key, value in form.errors.items %}
+                                    <strong>{{ value }}</strong>
+                                {% endfor %}
+                            </div>
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                    {% endif %}
+                    <div class="form__input">
+                        <div class="form__blockinput">
+                            {{ customtheme.theme }}
+                        </div>
+                    </div>
+                    <button type="submit" class="form__button" name="btn-choose-customtheme">Обрати</button>
+                    </form>                
+                </div>  
+                {% else %}
+                <form method="POST">
+                    {%csrf_token%}
+                    <button type="submit" class="" name="delete-theme-teacher">Переобрати тему і викладача</button>
+                </form>
+                {%endif%}
+        {%endif%}
+    {%endfor%}
+    <h2 class="home__heading">Викладачі</h2>
+    <table class="styled-table">
+        <thead>
+            <tr>
+                <th>
+                    <div class="th__wrapper">ПІБ
+                    <form method="POST">
+                        {%csrf_token%}
+                        <button type="submit" class="table__link" name="teachers-name-sort-up">&#9650;</button>
+                        </form>
+                    <form method="POST">
+                        {%csrf_token%}
+                        <button type="submit" class="table__link" name="teachers-name-sort-down">&#9660;</button>
+                        </form>
+                    </div>
+                </th>
+                <th><div class="th__wrapper">
+                    Загальна кількість студентів
+                    <form method="POST">
+                        {%csrf_token%}
+                        <button type="submit" class="table__link" name="teachers-quantity-sort-up">&#9650;</button>
+                        </form>
+                    <form method="POST">
+                        {%csrf_token%}
+                        <button type="submit" class="table__link" name="teachers-quantity-sort-down">&#9660;</button>
+                        </form>
+                    </div>
+                </th>
+                <th>Поточна кількість студентів</th>
+                <th>Теми</th>
+            </tr>
+        </thead>
+        <tbody>
+            {%for item in teachers%}
+                {%if item.user_id != 199999 %}
+                    <tr>
+                        <td><a href="{% url 'teacher-profile' item.user_id %}">{{item.last_name}} {{item.first_name}} {{item.patronymic}}</a></td>
+                        {%if item.quantity == 0 %}
+                        <td>Не зазначено</td>
+                        {%else%}
+                        <td>{{item.quantity}}</td>
+                        {%endif%}
+                        <td>
+                        {%for value in countstudents%}
+                            {%if item.user_id == value.0 %}
+                                {{value.1}}
+                            {%endif%}
+                        {%endfor%}
+                        </td>
+                        <td>
+                            <ul>
+                                {%for value in themes%}
+                                    {%if item.user_id == value.teacher_id%}
+                                        {%if value.theme in allthemes and value.theme != 'Тема на вибір студента'%}
+                                            <li class="active">{{value.theme}}</li>
+                                        {%else%}
+                                            <li>{{value.theme}}</li>
+                                        {%endif%}
+                                    {%endif%}
+                                {%endfor%}
+                                {%if item.student_theme == True%}
+                                    <li>Тема на вибір студента</li>
+                                {%endif%}
+                            </ul>
+                        </td>
+                    </tr>
+                {% endif %}
+            {%endfor%}
+        </tbody>
+    </table>
+    <h2 class="home__heading">Студенти</h2>
+    <table class="styled-table">
+        <thead>
+            <tr>
+                <th>
+                    <div class="th__wrapper">ПІБ
+                        <form method="POST">
+                            {%csrf_token%}
+                            <button type="submit" class="table__link" name="students-name-sort-up">&#9650;</button>
+                            </form>
+                        <form method="POST">
+                            {%csrf_token%}
+                            <button type="submit" class="table__link" name="students-name-sort-down">&#9660;</button>
+                            </form>
+                        </div>
+                </th>
+                <th>Група</th>
+                <th>Тема</th>
+                <th>Керівник БАР</th>
+            </tr>
+        </thead>
+        <tbody>
+            {%for item in students%}
+                {%if item.user_id != 199999 %}
+                    <tr>
+                        <td>{{item.last_name}} {{item.first_name}} {{item.patronymic}}</td>
+                        <td>{{item.group}}</td>
+                        {%if item.theme == '' %}
+                            <td>Тема не обрана</td>
+                        {%else%}
+                            <td>{{item.theme}}</td>
+                        {%endif%}
+                        {% if item.teacher_id == 199999 %}
+                            <td>Керівник БАР не обраний</td>
+                        {%else%}
+                            <td>{{item.teacher_lastname}} {{item.teacher_firstname}} {{item.teacher_ptr}}</td>
+                        {%endif%}
+                        
+                    </tr>
+                {% endif %}
+            {%endfor%}
+        </tbody>
+    </table>
+</div>
+{% endblock content %}
+

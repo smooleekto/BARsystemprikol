@@ -1,0 +1,6 @@
+<option selected>---------</option>
+{% for teachertheme in teacherthemes %}
+    {% if teachertheme.theme not in studentsthemes or teachertheme.theme == 'Тема на вибір студента'%}
+        <option value="{{ teachertheme.theme_id }}">{{ teachertheme.theme }}</option>
+    {%endif%}
+{% endfor %}

@@ -1,0 +1,41 @@
+{% extends "app/base.html" %}
+{% block title %} Вхід {% endblock title%}
+{% block content %}
+<div class="form__container">
+    <div class="form__decoration"></div>
+    <div class="form__reg-form">
+        <h1 class="form__heading">Увійти в систему</h1>
+        <form method="POST">
+        {% csrf_token %}
+        {% if form.errors %}
+            <div class="alert alert-danger alert-dismissible" role="alert">
+                <div id="form_errors">
+                    {% for key, value in form.errors.items %}
+                        <strong>{{ value }}</strong>
+                    {% endfor %}
+                </div>
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+        {% endif %}
+        <div class="form__input">
+            <div class="form__blockinput">
+                {{ form.username }}
+            </div>
+            <div class="form__blockinput">
+                {{ form.password }}
+                {{ form.errors.password }}
+            </div>
+            <div class="form__blockinput">
+                {{ form.remember_me }}
+                <label> Запам'ятати мене</label>
+            </div>
+        </div>
+        <button type="submit" class="form__button">Увійти</button>
+        </form>
+        <br>
+        <a href="/#open-modal" class="form__link">Ще не зареєстровані?</a><br>
+        {% endblock content %}
+    </div>
+</div>
